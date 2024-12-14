@@ -1,5 +1,10 @@
 {
   "dependencies": {
-    "latest-version": "^9.0.0"
+    "@headlessui/react": "^2.2.0",
+    "@heroicons/react": "^2.2.0",
+    "@tanstack/react-query": "^5.62.7",
+    "axios": "^1.7.9",
+    "latest-version": "^9.0.0",
+    "react-router-dom": "^7.0.2"
   }
 }
