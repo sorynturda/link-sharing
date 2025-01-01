@@ -10,28 +10,29 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
+@CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor
 @Slf4j
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
 
-    @CrossOrigin(origins = "*")
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
-        log.debug("Received registration request for user: {}", request.getUsername());
-        try {
-            AuthenticationResponse response = authenticationService.register(request);
-            log.debug("Successfully registered user: {}", request.getUsername());
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Registration failed for user: " + request.getUsername(), e);
-            throw e;
-        }
+    public ResponseEntity<AuthenticationResponse> register(
+            @RequestParam String username,
+            @RequestParam String email,
+            @RequestParam String password) {
+
+        RegisterRequest request = RegisterRequest.builder()
+                .username(username)
+                .email(email)
+                .password(password)
+                .build();
+
+        return ResponseEntity.ok(authenticationService.register(request));
     }
 
-    @CrossOrigin(origins = "*")
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         log.debug("Received authentication request for user: {}", request.getUsername());
