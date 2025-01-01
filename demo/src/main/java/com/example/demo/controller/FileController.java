@@ -21,6 +21,7 @@ public class FileController {
 
     private final FileService fileService;
 
+    @CrossOrigin(origins = "*")
     @PostMapping("/upload")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<FileDTO> uploadFile(
@@ -29,12 +30,14 @@ public class FileController {
         return ResponseEntity.ok(fileService.uploadFile(file, userId));
     }
 
+    @CrossOrigin(origins = "*")
     @GetMapping("/user/{userId}")
     @PreAuthorize("#userId == authentication.principal.id")
     public ResponseEntity<List<FileDTO>> getUserFiles(@PathVariable Long userId) {
         return ResponseEntity.ok(fileService.getUserFiles(userId));
     }
 
+    @CrossOrigin(origins = "*")
     @GetMapping("/download/{fileId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Resource> downloadFile(
@@ -48,6 +51,7 @@ public class FileController {
             .body(resource);
     }
 
+    @CrossOrigin(origins = "*")
     @DeleteMapping("/{fileId}")
     @PreAuthorize("#userId == authentication.principal.id")
     public ResponseEntity<Void> deleteFile(
