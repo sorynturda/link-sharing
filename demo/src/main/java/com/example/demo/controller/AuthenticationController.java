@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
-
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
             @RequestParam String username,
@@ -34,7 +33,15 @@ public class AuthenticationController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
+    public ResponseEntity<AuthenticationResponse> authenticate(
+            @RequestParam String username,
+            @RequestParam String password) {
+
+        AuthenticationRequest request = AuthenticationRequest.builder()
+                .username(username)
+                .password(password)
+                .build();
+
         log.debug("Received authentication request for user: {}", request.getUsername());
         return ResponseEntity.ok(authenticationService.authenticate(request));
     }
