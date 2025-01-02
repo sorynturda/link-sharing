@@ -26,7 +26,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
-    // List of paths that don't require authentication
     private final List<String> publicPaths = Arrays.asList(
         "/api/auth/register", "/auth/register",
         "/api/auth/authenticate", "/auth/authenticate",
@@ -34,9 +33,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     );
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        return publicPaths.stream().anyMatch(path::startsWith);
+        return "OPTIONS".equals(request.getMethod()) ||
+               publicPaths.stream().anyMatch(path::startsWith);
     }
 
     @Override
