@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.exception.FileNotFoundException;
 import com.example.demo.exception.FileStorageException;
+import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.model.dto.FileDTO;
 import com.example.demo.model.entity.File;  // Add this import for your custom File entity
 import com.example.demo.model.entity.User;
@@ -35,16 +36,10 @@ public class FileService {
     private final UserRepository userRepository;
     private final Path fileStorageLocation;
 
-    private static final Set<String> ALLOWED_FILE_TYPES = Set.of(
-        "image/jpeg", "image/png", "image/gif",
-        "application/pdf", "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "text/plain"
-    );
 
     private static final long MAX_FILE_SIZE = 20 * 1024 * 1024;
 
-    @Autowired
+@Autowired
     public FileService(FileRepository fileRepository,
                       UserRepository userRepository,
                       @Value("${file.upload-dir}") String uploadDir) {
@@ -59,8 +54,7 @@ public class FileService {
         }
     }
 
-    public FileDTO uploadFile(MultipartFile file, Long userId) {
-        validateFileType(file);
+   public FileDTO uploadFile(MultipartFile file, Long userId) {
         validateFileSize(file);
 
         User user = userRepository.findById(userId)
@@ -128,12 +122,6 @@ public class FileService {
                 .collect(Collectors.toList());
     }
 
-    private void validateFileType(MultipartFile file) {
-        String contentType = file.getContentType();
-        if (!ALLOWED_FILE_TYPES.contains(contentType)) {
-            throw new FileStorageException("File type not allowed: " + contentType);
-        }
-    }
 
     private void validateFileSize(MultipartFile file) {
         if (file.getSize() > MAX_FILE_SIZE) {

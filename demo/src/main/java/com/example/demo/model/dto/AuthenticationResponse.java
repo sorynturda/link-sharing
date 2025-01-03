@@ -13,4 +13,5 @@ public class AuthenticationResponse {
     private String token;
     private String username;
     private String role;
+    private Long userId;  // Adaugă acest câmp
 }
