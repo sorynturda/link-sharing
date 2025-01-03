@@ -2,3 +2,6 @@
 # npm install react-router-dom lucide-react
 # npm install -D tailwindcss postcss autoprefixer
 # npm start
+-------------------------------------------------
+# mkdir uplads
+# chmod 755 uploads
