@@ -28,7 +28,9 @@ CREATE TABLE files (
     file_size BIGINT,
     file_path TEXT NOT NULL,
     uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    
+    share_token VARCHAR(255) UNIQUE,       
+    share_enabled BOOLEAN DEFAULT FALSE,    
+
     CONSTRAINT fk_file_user FOREIGN KEY (user_id) 
         REFERENCES users(user_id) 
         ON DELETE CASCADE
@@ -38,3 +40,6 @@ CREATE TABLE files (
 CREATE INDEX idx_files_user_id ON files(user_id);
 CREATE INDEX idx_users_username ON users(username);
 CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_files_share_token ON files(share_token); 
+CREATE INDEX idx_files_share_enabled ON files(share_enabled); 
+
