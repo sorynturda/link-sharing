@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -43,10 +44,10 @@ public class FileController {
             @RequestParam Long userId) {
         Resource resource = fileService.downloadFile(fileId, userId);
         return ResponseEntity.ok()
-            .contentType(MediaType.APPLICATION_OCTET_STREAM)
-            .header(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + resource.getFilename() + "\"")
-            .body(resource);
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 
     @DeleteMapping("/{fileId}")
@@ -56,5 +57,32 @@ public class FileController {
             @RequestParam Long userId) {
         fileService.deleteFile(fileId, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{fileId}/toggle-share")
+    @PreAuthorize("#userId == authentication.principal.id")
+    public ResponseEntity<FileDTO> toggleFileSharing(
+            @PathVariable Long fileId,
+            @RequestParam Long userId) {
+        return ResponseEntity.ok(fileService.toggleFileSharing(fileId, userId));
+    }
+
+ @GetMapping("/shared/{shareToken}")
+    public ResponseEntity<Resource> downloadSharedFile(@PathVariable String shareToken) {
+        Resource resource = fileService.downloadSharedFile(shareToken);
+        return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .header(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + resource.getFilename() + "\"")
+            .body(resource);
+    }
+
+    @PostMapping("/{fileId}/share")
+    @PreAuthorize("#userId == authentication.principal.id")
+    public ResponseEntity<Map<String, String>> generateShareLink(
+            @PathVariable Long fileId,
+            @RequestParam Long userId) {
+        String shareUrl = fileService.generateShareLink(fileId, userId);
+        return ResponseEntity.ok(Map.of("shareUrl", shareUrl));
     }
 }

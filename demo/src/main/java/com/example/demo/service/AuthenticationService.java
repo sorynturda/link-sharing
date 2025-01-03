@@ -44,11 +44,11 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .token(token)
                 .username(user.getUsername())
-                .role(user.getRole())
+                .role(user.getRole().toString())
                 .build();
     }
 
-    @Transactional
+       @Transactional
     public AuthenticationResponse register(RegisterRequest request) {
         try {
             log.debug("Starting registration for user: {}", request.getUsername());
@@ -67,7 +67,7 @@ public class AuthenticationService {
             user.setUsername(request.getUsername());
             user.setEmail(request.getEmail());
             user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-            user.setRole("USER");
+            user.setRole("user");
 
             log.debug("Saving user to database");
             user = userRepository.save(user);
@@ -79,7 +79,7 @@ public class AuthenticationService {
             return AuthenticationResponse.builder()
                     .token(token)
                     .username(user.getUsername())
-                    .role(user.getRole())
+                    .role(user.getRole().toString())
                     .build();
 
         } catch (Exception e) {

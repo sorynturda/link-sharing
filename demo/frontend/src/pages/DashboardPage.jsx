@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import DashboardLayout from '../layouts/DashboardLayout';
-import { Upload, File, Trash2, Download } from 'lucide-react';
+import { Upload, File, Trash2, Download, Share2 } from 'lucide-react';
 
-const Alert = ({ variant = 'info', children }) => {
+const Alert = ({ variant = 'info', children, onDismiss }) => {
   const styles = {
     error: 'bg-red-50 text-red-800 border-red-200',
     success: 'bg-green-50 text-green-800 border-green-200',
@@ -11,8 +11,16 @@ const Alert = ({ variant = 'info', children }) => {
   };
 
   return (
-    <div className={`p-4 rounded-md border ${styles[variant]}`}>
+    <div className={`p-4 rounded-md border ${styles[variant]} relative`}>
       {children}
+      {onDismiss && (
+        <button
+          onClick={onDismiss}
+          className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+        >
+          ×
+        </button>
+      )}
     </div>
   );
 };
@@ -80,7 +88,7 @@ const DashboardPage = () => {
       if (!response.ok) throw new Error('Upload failed');
 
       setSuccess('File uploaded successfully!');
-      fetchFiles(); // Refresh the file list
+      fetchFiles();
     } catch (err) {
       setError('Failed to upload file');
     } finally {
@@ -102,7 +110,7 @@ const DashboardPage = () => {
       if (!response.ok) throw new Error('Delete failed');
 
       setSuccess('File deleted successfully!');
-      fetchFiles(); // Refresh the file list
+      fetchFiles();
     } catch (err) {
       setError('Failed to delete file');
     }
@@ -134,12 +142,36 @@ const DashboardPage = () => {
     }
   };
 
+  const handleShare = async (fileId) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/files/${fileId}/share?userId=${userId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (!response.ok) throw new Error('Failed to generate share link');
+
+      const data = await response.json();
+      await navigator.clipboard.writeText(data.shareUrl);
+      setSuccess('Share link copied to clipboard!');
+    } catch (err) {
+      setError('Failed to generate share link');
+    }
+  };
+
   const formatFileSize = (bytes) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const dismissAlert = () => {
+    setError(null);
+    setSuccess(null);
   };
 
   if (!userId) {
@@ -180,13 +212,13 @@ const DashboardPage = () => {
 
         {/* Alerts */}
         {error && (
-          <Alert variant="error" className="mb-4">
+          <Alert variant="error" onDismiss={dismissAlert} className="mb-4">
             {error}
           </Alert>
         )}
 
         {success && (
-          <Alert variant="success" className="mb-4">
+          <Alert variant="success" onDismiss={dismissAlert} className="mb-4">
             {success}
           </Alert>
         )}
@@ -212,14 +244,23 @@ const DashboardPage = () => {
                     </div>
                     <div className="flex space-x-2">
                       <button
+                        onClick={() => handleShare(file.fileId)}
+                        className="p-2 text-gray-400 hover:text-indigo-600"
+                        title="Share file"
+                      >
+                        <Share2 className="h-5 w-5" />
+                      </button>
+                      <button
                         onClick={() => handleDownload(file.fileId, file.fileName)}
                         className="p-2 text-gray-400 hover:text-indigo-600"
+                        title="Download file"
                       >
                         <Download className="h-5 w-5" />
                       </button>
                       <button
                         onClick={() => handleDelete(file.fileId)}
                         className="p-2 text-gray-400 hover:text-red-600"
+                        title="Delete file"
                       >
                         <Trash2 className="h-5 w-5" />
                       </button>

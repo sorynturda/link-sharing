@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.transaction.Transactional;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -26,6 +27,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,10 +41,13 @@ public class FileService {
 
     private static final long MAX_FILE_SIZE = 20 * 1024 * 1024;
 
-@Autowired
+    @Value("${app.base-url}")
+    private String baseUrl;
+
+    @Autowired
     public FileService(FileRepository fileRepository,
-                      UserRepository userRepository,
-                      @Value("${file.upload-dir}") String uploadDir) {
+                       UserRepository userRepository,
+                       @Value("${file.upload-dir}") String uploadDir) {
         this.fileRepository = fileRepository;
         this.userRepository = userRepository;
         this.fileStorageLocation = Paths.get(uploadDir).toAbsolutePath().normalize();
@@ -54,7 +59,7 @@ public class FileService {
         }
     }
 
-   public FileDTO uploadFile(MultipartFile file, Long userId) {
+    public FileDTO uploadFile(MultipartFile file, Long userId) {
         validateFileSize(file);
 
         User user = userRepository.findById(userId)
@@ -157,6 +162,67 @@ public class FileService {
         return fileEntity;
     }
 
+
+    public FileDTO toggleFileSharing(Long fileId, Long userId) {
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new FileNotFoundException("File not found with id: " + fileId));
+
+        validateUserAccess(file, userId);
+
+        if (!file.isShareEnabled()) {
+            // Generează un nou token de partajare doar dacă activăm partajarea
+            file.setShareToken(generateShareToken());
+            file.setShareEnabled(true);
+        } else {
+            // Dezactivează partajarea și șterge token-ul
+            file.setShareToken(null);
+            file.setShareEnabled(false);
+        }
+
+        file = fileRepository.save(file);
+        return convertToDTO(file);
+    }
+
+    public String generateShareLink(Long fileId, Long userId) {
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new FileNotFoundException("File not found with id: " + fileId));
+
+        if (!file.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You don't have permission to share this file");
+        }
+
+        if (file.getShareToken() == null) {
+            file.setShareToken(UUID.randomUUID().toString());
+            file = fileRepository.save(file);
+        }
+
+        return baseUrl + "/files/shared/" + file.getShareToken();
+    }
+
+    public Resource downloadSharedFile(String shareToken) {
+        File file = fileRepository.findByShareToken(shareToken)
+                .orElseThrow(() -> new FileNotFoundException("Shared file not found"));
+
+        try {
+            Path filePath = this.fileStorageLocation.resolve(
+                    Paths.get(file.getFilePath()).getFileName()
+            );
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists() && resource.isReadable()) {
+                return resource;
+            } else {
+                throw new FileNotFoundException("File not found: " + file.getFileName());
+            }
+        } catch (MalformedURLException ex) {
+            throw new FileNotFoundException("File not found: " + file.getFileName(), ex);
+        }
+    }
+
+    private String generateShareToken() {
+        return UUID.randomUUID().toString();
+    }
+
     private FileDTO convertToDTO(File file) {
         FileDTO dto = new FileDTO();
         dto.setFileId(file.getFileId());
@@ -165,6 +231,14 @@ public class FileService {
         dto.setFileSize(file.getFileSize());
         dto.setFilePath(file.getFilePath());
         dto.setUserId(file.getUser().getId());
+        dto.setShareToken(file.getShareToken());
+        dto.setShareEnabled(file.isShareEnabled());
+
+        if (file.isShareEnabled() && file.getShareToken() != null) {
+            dto.setShareUrl(baseUrl + "/files/shared/" + file.getShareToken());
+        }
+
         return dto;
     }
+
 }

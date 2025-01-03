@@ -10,4 +10,7 @@ public class FileDTO {
     private Long fileSize;
     private String filePath;
     private Long userId;
+    private String shareToken;
+    private boolean shareEnabled;
+    private String shareUrl;
 }

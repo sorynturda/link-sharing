@@ -2,6 +2,7 @@ package com.example.demo.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
 import java.time.LocalDateTime;
 
 @Data
@@ -30,6 +31,12 @@ public class File {
 
     @Column(name = "uploaded_at")
     private LocalDateTime uploadedAt;
+
+    @Column(name = "share_token")
+    private String shareToken;
+
+    @Column(name = "share_enabled")
+    private boolean shareEnabled = false;
 
     @PrePersist
     protected void onCreate() {
