@@ -29,7 +29,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+      public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
@@ -41,14 +41,15 @@ public class AuthenticationService {
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         String token = jwtService.generateToken(user);
+
         return AuthenticationResponse.builder()
                 .token(token)
                 .username(user.getUsername())
-                .role(user.getRole().toString())
+                .role(user.getRole())
+                .userId(user.getId())  // Adăugăm și ID-ul utilizatorului
                 .build();
     }
-
-       @Transactional
+    @Transactional
     public AuthenticationResponse register(RegisterRequest request) {
         try {
             log.debug("Starting registration for user: {}", request.getUsername());
@@ -87,4 +88,6 @@ public class AuthenticationService {
             throw new RuntimeException("Failed to register user: " + e.getMessage(), e);
         }
     }
+
+
 }

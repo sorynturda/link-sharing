@@ -1,3 +1,4 @@
+// useAuth.js
 import { useState, useEffect, createContext, useContext } from 'react';
 
 const AuthContext = createContext(null);
@@ -11,7 +12,11 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       // Decode JWT to get user info
       const payload = JSON.parse(atob(token.split('.')[1]));
-      setUser({ username: payload.sub });
+      setUser({
+        username: payload.sub,
+        role: payload.role,
+        id: payload.id
+      });
     }
     setLoading(false);
   }, []);
@@ -33,8 +38,16 @@ export const AuthProvider = ({ children }) => {
 
     const data = await response.json();
     localStorage.setItem('token', data.token);
-    setUser({ username: data.username });
-    return data;
+    
+    // Setăm informațiile complete ale utilizatorului
+    const user = {
+      username: data.username,
+      role: data.role,
+      id: data.userId
+    };
+    
+    setUser(user);
+    return data; // Returnăm datele pentru a putea verifica rolul în LoginForm
   };
 
   const register = async (username, email, password) => {

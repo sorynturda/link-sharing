@@ -8,6 +8,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @Transactional
 public class UserService {
@@ -25,8 +28,14 @@ public class UserService {
 
     public UserDTO getUserById(Long id) {
         User user = userRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
         return convertToDTO(user);
+    }
+
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     private UserDTO convertToDTO(User user) {

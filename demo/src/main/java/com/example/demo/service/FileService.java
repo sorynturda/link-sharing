@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -134,11 +136,15 @@ public class FileService {
         }
     }
 
-    private void validateUserAccess(File file, Long userId) {
-        if (!file.getUser().getId().equals(userId)) {
-            throw new AccessDeniedException("You don't have permission to access this file");
-        }
+private void validateUserAccess(File file, Long userId) {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    boolean isAdmin = auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_admin"));
+
+    if (!isAdmin && !file.getUser().getId().equals(userId)) {
+        throw new AccessDeniedException("You don't have permission to access this file");
     }
+}
 
     private String normalizeFileName(String fileName) {
         fileName = StringUtils.cleanPath(fileName);

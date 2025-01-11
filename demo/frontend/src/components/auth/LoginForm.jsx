@@ -1,3 +1,4 @@
+// LoginForm.jsx
 import React, { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -14,8 +15,13 @@ const LoginForm = () => {
     setLoading(true);
 
     try {
-      await login(e.target.username.value, e.target.password.value);
-      navigate('/dashboard');
+      const response = await login(e.target.username.value, e.target.password.value);
+      // Verificăm rolul și redirecționăm corespunzător
+      if (response.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       setMessage({
         text: error.message || 'Login failed',

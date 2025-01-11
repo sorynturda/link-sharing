@@ -32,7 +32,7 @@ public class FileController {
     }
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("#userId == authentication.principal.id")
+    @PreAuthorize("#userId == authentication.principal.id or hasRole('ROLE_admin')")
     public ResponseEntity<List<FileDTO>> getUserFiles(@PathVariable Long userId) {
         return ResponseEntity.ok(fileService.getUserFiles(userId));
     }
@@ -50,14 +50,14 @@ public class FileController {
                 .body(resource);
     }
 
-    @DeleteMapping("/{fileId}")
-    @PreAuthorize("#userId == authentication.principal.id")
-    public ResponseEntity<Void> deleteFile(
-            @PathVariable Long fileId,
-            @RequestParam Long userId) {
-        fileService.deleteFile(fileId, userId);
-        return ResponseEntity.noContent().build();
-    }
+@DeleteMapping("/{fileId}")
+@PreAuthorize("#userId == authentication.principal.id or hasRole('ROLE_admin')")
+public ResponseEntity<Void> deleteFile(
+        @PathVariable Long fileId,
+        @RequestParam Long userId) {
+    fileService.deleteFile(fileId, userId);
+    return ResponseEntity.noContent().build();
+}
 
     @PostMapping("/{fileId}/toggle-share")
     @PreAuthorize("#userId == authentication.principal.id")
@@ -67,22 +67,22 @@ public class FileController {
         return ResponseEntity.ok(fileService.toggleFileSharing(fileId, userId));
     }
 
- @GetMapping("/shared/{shareToken}")
+    @GetMapping("/shared/{shareToken}")
     public ResponseEntity<Resource> downloadSharedFile(@PathVariable String shareToken) {
         Resource resource = fileService.downloadSharedFile(shareToken);
         return ResponseEntity.ok()
-            .contentType(MediaType.APPLICATION_OCTET_STREAM)
-            .header(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + resource.getFilename() + "\"")
-            .body(resource);
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 
-    @PostMapping("/{fileId}/share")
-    @PreAuthorize("#userId == authentication.principal.id")
-    public ResponseEntity<Map<String, String>> generateShareLink(
-            @PathVariable Long fileId,
-            @RequestParam Long userId) {
-        String shareUrl = fileService.generateShareLink(fileId, userId);
-        return ResponseEntity.ok(Map.of("shareUrl", shareUrl));
-    }
+@PostMapping("/{fileId}/share")
+@PreAuthorize("#userId == authentication.principal.id or hasRole('ROLE_admin')")
+public ResponseEntity<Map<String, String>> generateShareLink(
+        @PathVariable Long fileId,
+        @RequestParam Long userId) {
+    String shareUrl = fileService.generateShareLink(fileId, userId);
+    return ResponseEntity.ok(Map.of("shareUrl", shareUrl));
+}
 }

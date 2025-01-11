@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
-import { LogOut } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { LogOut, Users } from 'lucide-react';
 
 const DashboardLayout = ({ children }) => {
   const { user, logout } = useAuth();
@@ -17,8 +17,17 @@ const DashboardLayout = ({ children }) => {
       <nav className="bg-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
-            <div className="flex items-center">
+            <div className="flex items-center space-x-4">
               <h1 className="text-xl font-semibold">Dashboard</h1>
+              {user?.role === 'admin' && (
+                <Link
+                  to="/admin"
+                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-600 hover:text-indigo-500"
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Admin Panel
+                </Link>
+              )}
             </div>
             <div className="flex items-center">
               <span className="mr-4">Welcome, {user?.username}!</span>
