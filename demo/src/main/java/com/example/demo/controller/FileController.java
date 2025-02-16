@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/files")
 @RequiredArgsConstructor
@@ -80,9 +79,15 @@ public ResponseEntity<Void> deleteFile(
 @PostMapping("/{fileId}/share")
 @PreAuthorize("#userId == authentication.principal.id or hasRole('ROLE_admin')")
 public ResponseEntity<Map<String, String>> generateShareLink(
-        @PathVariable Long fileId,
-        @RequestParam Long userId) {
-    String shareUrl = fileService.generateShareLink(fileId, userId);
-    return ResponseEntity.ok(Map.of("shareUrl", shareUrl));
-}
+            @PathVariable Long fileId,
+            @RequestParam Long userId) {
+        try {
+            String shareUrl = fileService.generateShareLink(fileId, userId);
+            return ResponseEntity.ok(Map.of("shareUrl", shareUrl));
+        } catch (Exception e) {
+            // Log the error on the server side
+            System.err.println("Error generating share link: " + e.getMessage());
+            throw e;
+        }
+    }
 }

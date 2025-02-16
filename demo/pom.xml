@@ -125,8 +125,16 @@
                 <enabled>false</enabled>
             </releases>
         </repository>
+	    <repository>
+        <id>spring-releases</id>
+        <url>https://repo.spring.io/libs-release</url>
+    </repository>
     </repositories>
     <pluginRepositories>
+ <pluginRepository>
+        <id>spring-releases</id>
+        <url>https://repo.spring.io/libs-release</url>
+    </pluginRepository>
         <pluginRepository>
             <id>spring-snapshots</id>
             <name>Spring Snapshots</name>

@@ -28,7 +28,6 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
     @GetMapping("/{id}")
-    @CrossOrigin(origins = "*")
     public ResponseEntity<UserDTO> getUser(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
