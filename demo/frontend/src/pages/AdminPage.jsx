@@ -108,24 +108,47 @@ const AdminPage = () => {
         }
     };
 
-    const handleShare = async (fileId) => {
-        try {
-            const response = await fetch(`http://localhost:8080/api/files/${fileId}/share?userId=${selectedUser.userId}`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
 
-            if (!response.ok) throw new Error('Failed to generate share link');
+        const handleShare = async (fileId) => {
+            try {
+                 const response = await fetch(`http://13.60.249.198:8080/api/files/${fileId}/share?userId=${selectedUser.userId}`, {
+                     method: 'POST',
+                     headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
 
-            const data = await response.json();
-            await navigator.clipboard.writeText(data.shareUrl);
-            setSuccess('Share link copied to clipboard!');
-        } catch (err) {
-            setError('Failed to generate share link');
-        }
-    };
+         if (!response.ok) {
+     	 throw new Error('Failed to generate share link');
+	    }
+
+	    const data = await response.json();
+    
+	    // Create temporary input element
+	    const tempInput = document.createElement('input');
+	    tempInput.value = data.shareUrl;
+	    document.body.appendChild(tempInput);
+    
+	    // Select the text
+	    tempInput.select();
+	    tempInput.setSelectionRange(0, 99999); // For mobile devices
+    
+	    // Try to use clipboard API first, fall back to document.execCommand
+	    try {
+	      await navigator.clipboard.writeText(data.shareUrl);
+	    } catch (err) {
+	      document.execCommand('copy');
+	    } finally {
+	      // Clean up
+	      document.body.removeChild(tempInput);
+	        }
+    
+	        setSuccess('Share link copied to clipboard!');
+	      } catch (err) {
+	        setError('Failed to generate share link');
+	        console.error(err);
+     	 }
+	    };
 
     const formatFileSize = (bytes) => {
         if (bytes === 0) return '0 Bytes';
