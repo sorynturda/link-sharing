@@ -51,7 +51,7 @@ const DashboardPage = () => {
 
   const fetchFiles = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/api/files/user/${userId}`, {
+      const response = await fetch(`http://172.17.0.3:8080/api/files/user/${userId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -77,7 +77,7 @@ const DashboardPage = () => {
     setSuccess(null);
 
     try {
-      const response = await fetch('http://localhost:8080/api/files/upload', {
+      const response = await fetch('http://172.17.0.3:8080/api/files/upload', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -100,7 +100,7 @@ const DashboardPage = () => {
     if (!userId) return;
 
     try {
-      const response = await fetch(`http://localhost:8080/api/files/${fileId}?userId=${userId}`, {
+      const response = await fetch(`http://172.17.0.3:8080/api/files/${fileId}?userId=${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -120,7 +120,7 @@ const DashboardPage = () => {
     if (!userId) return;
 
     try {
-      const response = await fetch(`http://localhost:8080/api/files/download/${fileId}?userId=${userId}`, {
+      const response = await fetch(`http://172.17.0.3:8080/api/files/download/${fileId}?userId=${userId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }

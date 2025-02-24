@@ -16,7 +16,7 @@ const ProtectedRoute = ({ children }) => {
       }
 
       try {
-        const response = await fetch('http://localhost:8080/api/test/secured', {
+        const response = await fetch('http://172.17.0.3:8080/api/test/secured', {
           headers: {
             'Authorization': `Bearer ${token}`
           }

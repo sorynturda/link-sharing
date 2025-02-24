@@ -48,7 +48,7 @@ const AdminPage = () => {
 
     const fetchUsers = async () => {
         try {
-            const response = await fetch('http://localhost:8080/api/users/admin/users', {
+            const response = await fetch('http://172.17.0.3:8080/api/users/admin/users', {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
@@ -66,7 +66,7 @@ const AdminPage = () => {
     const fetchUserFiles = async (userId) => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/api/files/user/${userId}`, {
+            const response = await fetch(`http://172.17.0.3:8080/api/files/user/${userId}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
@@ -92,7 +92,7 @@ const AdminPage = () => {
         if (!window.confirm('Are you sure you want to delete this file?')) return;
 
         try {
-            const response = await fetch(`http://localhost:8080/api/files/${fileId}?userId=${selectedUser.userId}`, {
+            const response = await fetch(`http://172.17.0.3:8080/api/files/${fileId}?userId=${selectedUser.userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`

@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8080/api';
+const API_URL = 'http://172.17.0.3:8080/api';
 
 export const api = {
   async request(endpoint, options = {}) {
